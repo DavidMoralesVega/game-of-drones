@@ -12,6 +12,7 @@ builder.Services.AddInfrastructure(connectionString);
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddOpenApi();
+builder.Services.AddHealthChecks().AddDbContextCheck<GameOfDronesDbContext>();
 
 var app = builder.Build();
 
@@ -31,6 +32,7 @@ app.UseStaticFiles();
 app.MapGames();
 app.MapMoves();
 app.MapPlayers();
+app.MapHealthChecks("/health");
 
 app.MapFallbackToFile("index.html");
 
