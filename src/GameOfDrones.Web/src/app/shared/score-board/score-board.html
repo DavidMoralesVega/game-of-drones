@@ -1,0 +1,41 @@
+<section class="card">
+  <h2 class="text-lg font-semibold text-muted">Score</h2>
+
+  <div class="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center">
+    <div>
+      <p class="truncate text-sm text-muted">{{ game().player1.name }}</p>
+      <p class="text-4xl font-black text-accent">{{ game().player1Score }}</p>
+    </div>
+    <p class="text-2xl font-bold text-muted">:</p>
+    <div>
+      <p class="truncate text-sm text-muted">{{ game().player2.name }}</p>
+      <p class="text-4xl font-black text-accent">{{ game().player2Score }}</p>
+    </div>
+  </div>
+  <p class="mt-2 text-center text-xs text-muted">
+    First to {{ game().winsToConquer }} wins conquers.
+  </p>
+
+  @if (game().rounds.length > 0) {
+    <table class="mt-4 w-full text-sm">
+      <thead class="text-left text-muted">
+        <tr>
+          <th class="pb-2 font-medium">Round</th>
+          <th class="pb-2 font-medium">Moves</th>
+          <th class="pb-2 font-medium">Winner</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (round of game().rounds; track round.number) {
+          <tr class="border-t border-edge">
+            <td class="py-2">{{ round.number }}</td>
+            <td class="py-2 text-muted">{{ round.player1Move }} vs {{ round.player2Move }}</td>
+            <td class="py-2 font-semibold" [class.text-muted]="!round.winner">
+              {{ round.winner ?? 'No winner' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

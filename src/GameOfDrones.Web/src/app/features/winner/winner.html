@@ -1,0 +1,14 @@
+@if (store.game(); as game) {
+  <div class="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <section class="card flex flex-col items-center justify-center text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-muted">We have a WINNER!!</p>
+      <h1 class="mt-4 text-4xl font-black tracking-tight sm:text-5xl">
+        <span class="text-accent">{{ game.winner }}</span> is the new EMPEROR!
+      </h1>
+      <p class="mt-3 text-muted">Conquered in {{ game.rounds.length }} rounds.</p>
+      <a routerLink="/" class="btn btn-primary mt-8 text-lg">Play Again</a>
+    </section>
+
+    <app-score-board [game]="game" />
+  </div>
+}
