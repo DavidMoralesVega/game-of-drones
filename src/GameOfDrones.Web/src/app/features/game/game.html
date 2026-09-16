@@ -4,45 +4,62 @@
       <p class="text-sm font-semibold uppercase tracking-widest text-muted">
         Round {{ store.roundNumber() }}
       </p>
-      <h1 class="mt-2 text-4xl font-black tracking-tight">{{ store.currentPlayer()?.name }}</h1>
-      <p class="mt-1 text-sm text-muted">
-        @if (store.turn() === 'player1') {
-          Choose your move while {{ game.player2.name }} looks away.
-        } @else {
-          {{ game.player1.name }} has chosen. Your turn, and no peeking!
-        }
-      </p>
 
-      <form class="mt-6 space-y-4" (ngSubmit)="confirm()">
-        <div>
-          <label class="label" for="move">Select Move</label>
-          <select
-            id="move"
-            name="move"
-            class="field"
-            [ngModel]="selectedMoveId()"
-            (ngModelChange)="selectedMoveId.set($event)"
-            required
-          >
-            <option [ngValue]="null" disabled>Pick one...</option>
-            @for (move of store.moves(); track move.id) {
-              <option [ngValue]="move.id">{{ move.name }}</option>
-            }
-          </select>
-        </div>
-
-        @if (store.error(); as error) {
-          <p class="error">{{ error }}</p>
-        }
-
+      @if (store.phase() === 'handoff') {
+        <h1 class="mt-2 text-4xl font-black tracking-tight">
+          Pass the device to {{ game.player2.name }}
+        </h1>
+        <p class="mt-1 text-sm text-muted">
+          {{ game.player1.name }} has locked in a move. Hand over the computer without peeking.
+        </p>
         <button
-          type="submit"
-          class="btn btn-primary w-full text-lg"
-          [disabled]="selectedMoveId() === null || store.busy()"
+          type="button"
+          class="btn btn-primary mt-6 w-full text-lg"
+          (click)="store.beginPlayer2Turn()"
         >
-          Ok
+          I'm {{ game.player2.name }}, ready
         </button>
-      </form>
+      } @else {
+        <h1 class="mt-2 text-4xl font-black tracking-tight">{{ store.currentPlayer()?.name }}</h1>
+        <p class="mt-1 text-sm text-muted">
+          @if (store.phase() === 'player1') {
+            Choose your move while {{ game.player2.name }} looks away.
+          } @else {
+            {{ game.player1.name }} has chosen. Your turn, and no peeking!
+          }
+        </p>
+
+        <form class="mt-6 space-y-4" (ngSubmit)="confirm()">
+          <div>
+            <label class="label" for="move">Select Move</label>
+            <select
+              id="move"
+              name="move"
+              class="field"
+              [ngModel]="selectedMoveId()"
+              (ngModelChange)="selectedMoveId.set($event)"
+              required
+            >
+              <option [ngValue]="null" disabled>Pick one...</option>
+              @for (move of store.moves(); track move.id) {
+                <option [ngValue]="move.id">{{ move.name }}</option>
+              }
+            </select>
+          </div>
+
+          @if (store.error(); as error) {
+            <p class="error">{{ error }}</p>
+          }
+
+          <button
+            type="submit"
+            class="btn btn-primary w-full text-lg"
+            [disabled]="selectedMoveId() === null || store.busy()"
+          >
+            Ok
+          </button>
+        </form>
+      }
     </section>
 
     <app-score-board [game]="game" />

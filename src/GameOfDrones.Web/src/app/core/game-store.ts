@@ -3,7 +3,7 @@ import { errorMessage } from './error-message';
 import { GameApi } from './game-api';
 import { Game, Move, Player } from './models';
 
-export type Turn = 'player1' | 'player2';
+export type Phase = 'player1' | 'handoff' | 'player2';
 
 @Injectable({ providedIn: 'root' })
 export class GameStore {
@@ -11,14 +11,14 @@ export class GameStore {
 
   private readonly gameState = signal<Game | null>(null);
   private readonly movesState = signal<Move[]>([]);
-  private readonly turnState = signal<Turn>('player1');
+  private readonly phaseState = signal<Phase>('player1');
   private readonly player1MoveId = signal<number | null>(null);
   private readonly busyState = signal(false);
   private readonly errorState = signal<string | null>(null);
 
   readonly game = this.gameState.asReadonly();
   readonly moves = this.movesState.asReadonly();
-  readonly turn = this.turnState.asReadonly();
+  readonly phase = this.phaseState.asReadonly();
   readonly busy = this.busyState.asReadonly();
   readonly error = this.errorState.asReadonly();
 
@@ -31,7 +31,7 @@ export class GameStore {
       return null;
     }
 
-    return this.turnState() === 'player1' ? game.player1 : game.player2;
+    return this.phaseState() === 'player1' ? game.player1 : game.player2;
   });
 
   async start(player1Name: string, player2Name: string): Promise<boolean> {
@@ -43,7 +43,7 @@ export class GameStore {
 
       this.gameState.set(game);
       this.movesState.set(moves);
-      this.turnState.set('player1');
+      this.phaseState.set('player1');
       this.player1MoveId.set(null);
     });
   }
@@ -54,27 +54,33 @@ export class GameStore {
       return false;
     }
 
-    if (this.turnState() === 'player1') {
+    if (this.phaseState() === 'player1') {
       this.player1MoveId.set(moveId);
-      this.turnState.set('player2');
+      this.phaseState.set('handoff');
       return true;
     }
 
     const player1MoveId = this.player1MoveId();
-    if (player1MoveId === null) {
+    if (this.phaseState() !== 'player2' || player1MoveId === null) {
       return false;
     }
 
     return this.run(async () => {
       this.gameState.set(await this.api.playRound(game.id, player1MoveId, moveId));
-      this.turnState.set('player1');
+      this.phaseState.set('player1');
       this.player1MoveId.set(null);
     });
   }
 
+  beginPlayer2Turn(): void {
+    if (this.phaseState() === 'handoff') {
+      this.phaseState.set('player2');
+    }
+  }
+
   reset(): void {
     this.gameState.set(null);
-    this.turnState.set('player1');
+    this.phaseState.set('player1');
     this.player1MoveId.set(null);
     this.errorState.set(null);
   }

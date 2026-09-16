@@ -12,6 +12,10 @@
 }
 
 @layer base {
+  app-root {
+    @apply flex min-h-screen flex-col;
+  }
+
   body {
     @apply min-h-screen bg-surface text-ink antialiased;
     background-image:
